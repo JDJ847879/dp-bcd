@@ -1,24 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun  9 12:51:50 2022
-
-@author: kroessks
+In this file we create the plots for the synthetic data simulations
 """
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-
-os.chdir("~/bcd-glm/scripts")
-import generate_data_synthetic as synthetic
 import numpy as np
-os.chdir("~/bcd-glm/scripts")
-from bcd import fit_glm, initialize_players
-os.chdir("~/bcd-glm/scripts")
-from simulation_functions import extract_R2, save_object , get_df
 import pickle
 
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd+"/..")
+import generate_data_synthetic as synthetic
+os.chdir(file_wd+"/../experiments")
+from simulation_functions import extract_R2, save_object , get_df
+
 ''' load results ''' 
-os.chdir("~/Synthetic data results")
+os.chdir(file_wd+"/../../results")
 with open("base_results", "rb") as input_file:
     base_results=pickle.load(input_file)
 with open("resultsR2_8", "rb") as input_file:
@@ -46,7 +43,8 @@ with open("resultscor_5", "rb") as input_file:
 flierprops = dict(marker='o', markerfacecolor='none', markersize=2,
                   linestyle='none', markeredgecolor='none')
 
-''' plots R**2'''    
+'''Effect of R**2'''  
+# Table 3: R2 x AAPD
 R2_8_error= abs(resultsR2_8[0]-resultsR2_8[1])/abs(resultsR2_8[1])
 R2_5_error= abs(resultsR2_5[0]-resultsR2_5[1])/abs(resultsR2_5[1])
 base_error= abs(base_results[0]-base_results[1])/abs(base_results[1])
@@ -62,15 +60,7 @@ np.median(base_error) # 0.47076090022124556
 np.median(R2_5_error) # 0.32711101534797415
 np.median(R2_8_error) # 0.21481870834710512
 
-R2s= np.array([0.1,0.3,0.5,0.8])    
-results_R2= np.vstack([np.mean(R2_1_error,1),np.mean(base_error,1), np.mean(R2_5_error,1), np.mean(R2_8_error,1) ])
-# plt.title('Percentual beta error over R2relation for epsilon = 1, \n gamma =1.2, and delta = 1/n with synthetic data (500 repetitions)')
-for c, R2 in enumerate(R2s):
-    plt.scatter(np.repeat(R2, 500), results_R2[c], alpha=0.4, label= "R2relation = "+str(R2))
-plt.boxplot(results_R2.T, widths=0.04, positions=R2s, medianprops=dict(color='black'), flierprops=flierprops)
-plt.semilogy()         
-plt.xlabel("$R^2$")
-#########################################################################
+# Figure 2: R2 x R2
 R2_1= extract_R2(resultsR2_1)
 R2_base= extract_R2(base_results)
 R2_5= extract_R2(resultsR2_5)
@@ -79,7 +69,6 @@ R2_8= extract_R2(resultsR2_8)
 R2_R2= [R2_1, R2_base,R2_5,R2_8]
 inds= np.array([1,2,3, 4])   
 cors= [.1,.3,.5,.8]
-# plt.title('$R^2$ over correlation for epsilon = 1, \n gamma =1.2, and delta = 1/n with synthetic data (500 repetitions)')
 for i, ind in enumerate(inds):
     plt.scatter(np.repeat(ind, 500), R2_R2[i][0], alpha=0.1, label= "$R^2$ = "+str(cors[i])+' DP')
     plt.boxplot( R2_R2[i][0], widths=0.1, positions=[ind], medianprops=dict(color='black'), flierprops=flierprops)
@@ -92,31 +81,12 @@ for lh in leg.legendHandles:
     lh.set_alpha(1)
 plt.xticks([])
 
-np.round(np.mean(R2_1_error),2) # 4.73
-
-# for the median we first
-np.round(np.median(R2_1_error.reshape(-1))) # 0.9
-np.round(np.mean(base_error)) # 3
-np.round(np.median(base_error.reshape(-1))) # 0
-np.round(np.mean(R2_5_error),2) # 1.88
-np.round(np.median(R2_5_error.reshape(-1))) # 0.9
-np.round(np.mean(R2_8_error)) # 1
-np.round(np.median(R2_8_error.reshape(-1))) # 0.9
-
-
-'''correlation '''
+'''Effect of correlation '''
 errorcor_1= abs(resultscor_1[0]-resultscor_1[1])/abs(resultscor_1[1])
 errorcor_5= abs(resultscor_5[0]-resultscor_5[1])/abs(resultscor_5[1])
 errorcor_3= abs(resultscor_3[0]-resultscor_3[1])/abs(resultscor_3[1])
 
-cors= np.array([0.1,0.3,0.5])    
-results_cor= np.vstack([np.mean(errorcor_1,1),np.mean(errorcor_3,1), np.mean(errorcor_5,1) ])
-# plt.title('Percentual beta error over correlation for epsilon = 1, \n gamma =1.2, and delta = 1/n with synthetic data (500 repetitions)')
-for c, cor in enumerate(cors):
-    plt.scatter(np.repeat(cor, 500), results_cor[c], alpha=0.4, label= "correlation = "+str(cor))
-plt.boxplot(results_cor.T, widths=0.04, positions=cors, medianprops=dict(color='black'))
-plt.semilogy()
-
+# Table  4: correlation x AAPD
 np.round(np.median(np.median(errorcor_1, axis=1)),2) # 0.27
 np.round(np.mean(errorcor_1),2) #0.56
 np.round(np.median(np.median(errorcor_3, axis=1)),2) # 0.69
@@ -124,48 +94,11 @@ np.round(np.mean(errorcor_3),2) # 1.06
 np.round(np.median(np.median(errorcor_5, axis=1)),2) # 0.69
 np.round(np.mean(errorcor_5),2) #3.11
 
-
-
-########################################################################
-'''plot betas '''
-means1= np.mean(resultscor_1[0],0)
-means3= np.mean(resultscor_3[0],0)
-means5= np.mean(resultscor_5[0],0)
-fig, axes= plt.subplots(3,3)
-for i in range(9):
-    df= get_df(i)
-    df.plot.density(ax=axes[int(i/3),i%3], legend=False, style=[':', '--', '-'], linewidth=1)
-    #axes[int(i/3),i%3].set_xlabel('variable'+str(i))
-    min_val= np.percentile(np.array(df).reshape(1500),0.01)
-    max_val= np.percentile(np.array(df).reshape(1500),99.99)
-    axes[int(i/3),i%3].set_xlim(min_val,max_val)
-    axes[int(i/3),i%3].axvline(x=resultscor_1[4][i], linewidth=.6)
-    # axes[int(i/3),i%3].axvline(x=means1[i], linewidth=.6, color="blue")
-    # axes[int(i/3),i%3].axvline(x=means3[i], linewidth=.6, color="orange")
-    # axes[int(i/3),i%3].axvline(x=means5[i], linewidth=.6, color="green")
-    axes[int(i/3),i%3].plot(means1[i],-0.005, marker='o', color="blue", alpha=1, markersize=2.5)
-    axes[int(i/3),i%3].plot(means3[i],-0.005 ,marker='s', color="orange", alpha=1, markersize=2.5)
-    axes[int(i/3),i%3].plot(means5[i],-0.005,  marker='x', color="green", alpha=1, markersize=2.5)
-    
-lines, labels=fig.axes[0].get_legend_handles_labels()
-axes[0,1].set_ylabel("")
-axes[0,2].set_ylabel("")
-axes[1,1].set_ylabel("")
-axes[1,2].set_ylabel("")
-axes[2,1].set_ylabel("")
-axes[2,2].set_ylabel("")
-# fig.legend(lines, labels, loc="lower center", ncol=2)
-plt.show()
-    
-########################################################################
-'''R**2 and correlation'''
-# So I think it is interesting that the correlation does not impact R2 but it does have a considerate
-# effect on the beta parameters
+# Figure 4: correlation x R2
 R2_cor_1= extract_R2(resultscor_1)
 R2_cor_5= extract_R2(resultscor_5)
 R2_cor= [R2_cor_1,R2_base,R2_cor_5]
 cors2= np.array([1,2,3])   
-# plt.title('$R^2$ over correlation for epsilon = 1, \n gamma =1.2, and delta = 1/n with synthetic data (500 repetitions)')
 for c, cor in enumerate(cors2):
     plt.scatter(np.repeat(cor, 500), R2_cor[c][0], alpha=0.1, label= "correlation = "+str(cors[c])+' DP')
     plt.boxplot( R2_cor[c][0], widths=0.04, positions=[cor], medianprops=dict(color='black'))
@@ -179,23 +112,9 @@ for lh in leg.legendHandles:
 plt.xticks([])
 plt.ylabel('$R^2$')
 
-'''epsilon '''
+'''Effect of epsilon '''
+# Figure 1: epsilon x R2
 epsilons= np.array([0,0.1,0.3,0.5,0.8,1,1.5,2.5, 10, 100])
-reps=500
-for e, epsilon in enumerate(epsilons):
-    error_epsilon[e]= abs(result_epsilon[e][0]-result_epsilon[0][0])/abs(result_epsilon[0][0])
-    
-for e, epsilon in enumerate(epsilons):
-    plt.scatter(np.repeat(epsilon, reps), np.mean(error_epsilon[e],1), alpha=0.2, label= "epsilon = "+str(int(eps*2)))
-plt.boxplot(np.mean(error_epsilon,2).T, widths=0.04, positions=epsilons)
-plt.xscale('symlog')
-plt.xlabel(r'$\varepsilon$')
-# plt.title('Percentual beta error over epsilon for gamma = 1.5, \n and delta = 1 with synthetic data (500 repetitions)')
-plt.ylabel('Average percentual absolute error \n beta compared to no DP')
-plt.legend()
-
-##############################################################################################
-# R2
 R2_eps=[]
 for i in range(len(epsilons)):
     R2_eps.append(extract_R2(result_epsilon[i], result_epsilon[0])[0])
@@ -204,7 +123,6 @@ np.array(R2_eps)
 epsilons_nonzero= epsilons[1:]
 pos= np.arange(1,len(epsilons))
 
-# plt.title('$R^2$ over epsilon for gamma = 1.5, \n and delta = 1 with synthetic data (500 repetitions, centralized $R^2$=0.3)')
 plt.scatter(np.repeat(0, reps), R2_eps[0], alpha=.02, label='no DP')
 plt.boxplot( R2_eps[0], widths=0.1, positions=[0], medianprops=dict(color='black'), flierprops=flierprops)
 for e, eps in enumerate(epsilons_nonzero):
@@ -220,9 +138,7 @@ plt.ylabel('$R^2$')
 plt.axhline(y=.3, alpha=.8, linewidth=.5, color="black", ls='-.')
 plt.ylim([-.5,.4])
 
-####################
-
-''' Table 1'''
+# Table 1: epsilon x AAPD
 mean_R2_eps= np.zeros(len(R2_eps))
 perc1_R2_eps= np.zeros(len(R2_eps))
 perc2_R2_eps= np.zeros(len(R2_eps))
@@ -245,44 +161,27 @@ np.round(np.mean(error_epsilon,(2,1)),2)
 np.round(np.median(error_epsilon,(2,1)),2)
 # array([ 0.  , 10.09,  5.68,  4.37,  3.45,  3.08,  2.51,  1.94,  1.37,
 #         0.97])
-# we use gamma is 0 as the baseline    
-##############################################################################################
 
-''' gamma '''
-#result_gamma=[]
+''' Effect of gamma '''
+# Table 2: gamma x AAPD
 gammas= np.array([1.15,1.25,1.5,1.8,2,2.5,3])
 error_gamma=np.zeros((gammas.shape[0],500,10))
 
 for g, gamma in enumerate(gammas):
     error_gamma[g]= abs(result_gamma[g][0]-base_results[1])/abs(base_results[1])
-
 np.round(np.mean(error_gamma,(2,1)),2)
 #  array([2.95, 3.21, 3.86, 4.64, 5.17, 6.51, 7.87])
 np.round(np.median(error_gamma,(2,1)),2)
 # array([0.45, 0.49, 0.59, 0.71, 0.79, 0.98, 1.18])
-# we use gamma is 0 as the baseline    
-    
-for g, gamma in enumerate(gammas):
-    plt.scatter(np.repeat(gamma, 500), np.mean(error_gamma[g],1), alpha=0.2, label= "gamma = "+str(gamma))
-    plt.boxplot(np.mean(error_gamma[g],1), widths=0.04, positions=[gamma], medianprops=dict(color='black'), flierprops=flierprops)
-plt.xscale('symlog')
-plt.xlabel('gamma')
-# plt.title('Percentual beta error over gamma for epsilon = 1, \n and delta = 1 with synthetic data (500 repetitions)')
-plt.ylabel('Average percentual absolute error \n beta compared to no DP')
-plt.legend()
 
-##############################################################################################
-# R2
+# Figure 1: gamma x R2
 R2_gam=[]
 for i in range(len(gammas)):
     R2_gam.append(extract_R2(result_gamma[i], result_gamma[0])[0])
-
-
 reps=500
 np.array(R2_gam)
 gammas_nonzero= gammas[1:]
 pos= np.arange(1,len(gammas))
-# plt.title('$R^2$ over gamma for epsilon = 1, \n with synthetic data (500 repetitions, centralized $R^2$=0.3)')
 plt.scatter(np.repeat(0, reps), R2_gam[0], alpha=.02, label='no DP')
 plt.boxplot( R2_gam[0], widths=0.1, positions=[0], medianprops=dict(color='black'), flierprops=flierprops)
 for g, gam in enumerate(gammas_nonzero):
@@ -291,45 +190,23 @@ for g, gam in enumerate(gammas_nonzero):
     plt.boxplot( R2_gam[g+1], widths=0.1, positions=[pos[g]+.2], medianprops=dict(color='black'), flierprops=flierprops)
 plt.legend()
 plt.xticks([])
-# leg = plt.legend(loc='lower center')
 leg = plt.legend(bbox_to_anchor=(.45, -.31), loc='lower center', ncol=3)
 for lh in leg.legendHandles: 
     lh.set_alpha(1)
 plt.axhline(y=.3, alpha=.8, linewidth=.5, color="black", ls='-.')
 plt.ylabel('$R^2$')
-# plt.xlabel(r'$\gamma$')
 plt.ylim([-.5,.4])
-##############################################################################################
-##############################################################################################
-##############################################################################################
-''' sample size '''
-error_sample_size=np.zeros((sample_sizes.shape[0],100, 10))
-sample_sizes= np.array([100, 250, 1000, 5000, 10000])
-for n, sample_size in enumerate(sample_sizes):
-    error_sample_size[n]= abs(result_sample_size[n][0]-result_sample_size[n][1])/abs(result_sample_size[n][1])
 
-for n, n_size in enumerate(sample_sizes):
-    print(n)
-    plt.scatter(np.repeat(n, 100), np.mean(error_sample_size[n],1), alpha=0.2, label = "sample size = "+str(n_size))
-    plt.boxplot(np.mean(error_sample_size[n],1), widths=0.15, positions=[n], medianprops=dict(color='black'), flierprops=flierprops)
-plt.xticks(sample_sizes) 
-plt.xlim([-1,5])
-plt.xlabel('n')
-# plt.title('Percentual beta error over sample size for gamma = 1.5, epsilon = 1, \n and delta = 1 with synthetic data (100 repetitions)')
-plt.ylabel('AAPD')
-leg=plt.legend()
-for lh in leg.legendHandles: 
-    lh.set_alpha(1)
-# here we need to subtract the true beta still
-##############################################################################################
-# R2
+''' Effect of sample size '''
+sample_sizes= np.array([100, 250, 1000, 5000, 10000])
+
+# Figure 6: sample size x R2
 R2_n_size=[]
 for i in range(len(sample_sizes)):
     R2_n_size.append(extract_R2(result_sample_size[i])[0])
 reps=100    
 sample_sizes_nonzero= sample_sizes[1:]
 pos= np.arange(len(sample_sizes))
-# plt.title('$R^2$ over sample_size for epsilon = 1, \n with synthetic data (500 repetitions, centralized $R^2$=0.3)')
 alpha=.1
 plt.ylim([-.5, .5])
 for n, n_size in enumerate(sample_sizes):
@@ -340,11 +217,11 @@ for n, n_size in enumerate(sample_sizes):
 plt.legend() 
 plt.xticks([]) 
 leg = plt.legend()
-# leg = plt.legend(bbox_to_anchor=(1.05, 1))
 for lh in leg.legendHandles: 
     lh.set_alpha(1)
 plt.axhline(y=.3, alpha=.8, linewidth=.5, color="black", ls='-.')
 
+# Table 5: sample size x AAPD
 np.round(np.mean(error_sample_size,(2,1)),2)
  # array([7.68, 3.82, 2.3 , 0.85, 0.59])
 np.round(np.median(error_sample_size,(2,1)),2)

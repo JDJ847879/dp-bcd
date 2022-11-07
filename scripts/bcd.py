@@ -1,9 +1,10 @@
 import logging
 from typing import Any, Dict, List, Optional, Tuple
-import os
-os.chdir("C:/Users/kroessks/Documents/Projects/sERP/bcd-glm/source")
 import numpy as np
 import numpy.typing as npt
+import os
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd+"/../source")
 from bcd_glm.glm import BaseGLMFamily, BernoulliFamily, GaussianFamily
 from bcd_glm.irls import IRLSProcedure
 from bcd_glm.irls_iteration import DefaultIRLSIterator

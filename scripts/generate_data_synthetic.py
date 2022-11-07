@@ -2,7 +2,8 @@ from typing import Any, List, Tuple
 import numpy as np
 import numpy.typing as npt
 import os
-os.chdir("~/bcd-glm/source")
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd+"/../source")
 from bcd_glm.glm import BernoulliFamily
 from sklearn.datasets import make_classification, make_regression
 from typing import Any, Optional

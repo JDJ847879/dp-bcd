@@ -5,11 +5,16 @@ All functions required to run and save simulations with synthetic data.
 
 import os
 import pandas as pd
-os.chdir("~/bcd-glm/scripts")
+
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd)
+os.chdir("..")
 import generate_data_synthetic as synthetic
 import numpy as np
 import matplotlib.pyplot as plt
-os.chdir("~/bcd-glm/scripts")
+
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd+"/..")
 from bcd import fit_glm, initialize_players
 import matplotlib.pyplot as plt
 import pickle

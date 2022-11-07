@@ -9,25 +9,26 @@ We vary epsilon and gamma and run the centralized regression.
 import os
 import numpy as np
 import pandas as pd
-os.chdir("C:/Users/kroessks/Documents/Projects/sERP/bcd-glm/scripts")
+file_wd = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_wd+"/..")
 from bcd import fit_glm, initialize_players
-os.chdir("C:/Users/kroessks/Documents/Projects/sERP/bcd-glm/scripts")
+os.chdir(file_wd+"/..")
 import generate_data_forestfires as forest
+os.chdir(file_wd)
 from simulation_functions import save_object
+os.chdir(file_wd+"/../../data")
 X, y, X_splitted = forest.get_data()
 # load the data
-os.chdir("C:/Users/kroessks/Documents/Projects/sERP/bcd-glm/data")
 df = pd.read_csv("forestfires.csv")
 X_A = (
-    pd.read_csv( "data_csv/forest_fire_Alice.csv")
+    pd.read_csv( "forest_fire_Alice.csv")
     .drop(columns=["Unnamed: 0"])
 )
 X_B = (
-    pd.read_csv( "data_csv/forest_fire_Bob.csv")
+    pd.read_csv( "forest_fire_Bob.csv")
     .drop(columns=["Unnamed: 0"])
 )
 col_names= np.concatenate([X_A.columns, X_B.columns])
-os.chdir("C:/Users/kroessks/Documents/Projects/sERP/bcd-glm/data")
 np.savetxt("X_forest.csv", X, delimiter=",")
 np.savetxt("y_forest.csv", y, delimiter=",")
 
@@ -55,11 +56,12 @@ for j in range(reps):
             tol=10**-15,
         )
         betas_epsilon[j][i]= betas_dp
+
+os.chdir(file_wd+"/../../results")        
 save_object(betas_epsilon, "betas_epsilon_forest")
 
 """ test gamma """
-# save_object(betas_gamma, 'betas_gamma_forest')
-# so lets start to evaluate the impact of gamma
+# evaluate the impact of gamma
 reps=1000
 gammas= np.array([1.15,1.25,1.5,1.8,2,2.5, 3])
 betas_gamma=np.zeros((reps, gammas.shape[0], 27))
@@ -82,5 +84,7 @@ for j in range(reps):
             tol=10**-15,
         )
         betas_gamma[j][i]= betas_dp
+        
+os.chdir(file_wd+"/../../results")        
 save_object(betas_gamma, "betas_gamma_forest")
 

@@ -31,17 +31,17 @@ def get_data_python_preprocessing() -> Tuple[
 def get_data() -> Tuple[npt.NDArray[Any], npt.NDArray[Any], List[npt.NDArray[Any]]]:
     # y_raw = pd.read_csv(datadir / "data_csv/forest_fire_y.csv").drop(columns=["Unnamed: 0"]).values
     X_A = (
-        pd.read_csv(DATADIR / "data_csv/forest_fire_Alice.csv")
+        pd.read_csv(DATADIR / "forest_fire_Alice.csv")
         .drop(columns=["Unnamed: 0"])
         .values
     )
     X_B = (
-        pd.read_csv(DATADIR / "data_csv/forest_fire_Bob.csv")
+        pd.read_csv(DATADIR / "forest_fire_Bob.csv")
         .drop(columns=["Unnamed: 0"])
         .values
     )
     logy = (
-        pd.read_csv(DATADIR / "data_csv/forest_fire_logy.csv")
+        pd.read_csv(DATADIR / "forest_fire_logy.csv")
         .drop(columns=["Unnamed: 0"])
         .values.flatten()
     )
